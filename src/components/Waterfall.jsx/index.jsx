@@ -22,11 +22,10 @@ const Waterfall =(props)=>{
         'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
       ];
     const columnCount = column;
-    // let arr = [];
-    // for(let i=0;i<column;i++){
-    //     arr.push([]);
-    // }
-    let arr = [[],[],[],[]]
+    let arr = [];
+    for(let i=0;i<column;i++){
+        arr.push([]);
+    }
     const [dataList, setDataList] = useState([]);
     // allColumn里的数据添加到页面上了没
     const [hasGet, setHasGet] = useState(false);
@@ -141,7 +140,7 @@ const WaterfallItem = (props)=>{
     const {url, width,gapX, gppY} = props;
     const [checked,setChecked]=useState(false);
     const onImgClick=(event)=>{
-        event.target.style.boxShadow="5px 5px";
+        event.target.style.opacity="0.4";
         setChecked(true);
     }
     const itemStyle={
