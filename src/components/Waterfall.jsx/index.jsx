@@ -49,9 +49,6 @@ const Waterfall =(props)=>{
             initFirstRow();
             console.log("init")
         }
-        // else{
-        //     console.log("数据更新了")
-        // }
     },[dataList]);
     const initFirstRow = () => {
         let curData = allColumnData;
@@ -114,15 +111,21 @@ const Waterfall =(props)=>{
         )
         observerObj.observe(columnArray[columnArray.length - 1])
     }
+    const onImgClick=(event,imgIndex)=>{
+        // console.log(this,imgIndex);
+        // document.querySelectorAll('.flex-column')[imgIndex[0]].querySelectorAll('.flex-column-ele')[imgIndex[1]].checked =true;
+        console.log(event.target.parentNode)
+    }
     return (
         <div>
-            <div className={'flex-row'} style={{overflowY:"scroll",height:"300px",display:"float"}}>
+            {/* 瀑布流容器的宽度直接改下面一行的 height 即可，未设置在 props 中 */}
+            <div className={'flex-row'} style={{overflowY:"scroll",height:"300px"}}>
                 {
-                    allColumnData.map((item, index) => (
-                        <div className={'flex-column'} key={index} style={{display:"inline-block",margin:"10px 5px",verticalAlign:"top"}}>
+                    allColumnData.map((item, index1) => (
+                        <div className={'flex-column'} key={index1} style={{display:"inline-block",margin:"10px 5px",verticalAlign:"top"}}>
                             {
-                                item.map((curItem,index) => (
-                                    <div className={'flex-column-ele'} key={index} style={{width:"100px"}}>
+                                item.map((curItem,index2) => (
+                                    <div className={'flex-column-ele'} key={index2} style={{width:"100px"}} onClick={onImgClick} checked={false}>
                                         <WaterfallItem url={curItem} width="100px"/>
                                     </div>
                                 ))
@@ -137,17 +140,14 @@ const Waterfall =(props)=>{
 } 
 
 const WaterfallItem = (props)=>{
-    const {url, width,gapX, gppY} = props;
-    const [checked,setChecked]=useState(false);
-    const onImgClick=(event)=>{
-        event.target.style.opacity="0.4";
-        setChecked(true);
-    }
+    const {url, width,checked} = props;
+    let opacity = checked ? "0.4" : "1";
     const itemStyle={
-        width:width
+        width:width,
+        opacity
     }
     return(
-        <img src={url} style={itemStyle} onClick={onImgClick}></img>
+        <img src={url} style={itemStyle}></img>
     )
 }
 
