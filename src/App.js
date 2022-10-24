@@ -1,5 +1,5 @@
-import { Waterfall } from './components/Waterfall.jsx';
-
+import { Waterfall } from './components/Waterfall/index.jsx';
+import {Test} from './components/Test/index.jsx';
 
 function App() {
   const testImgUrl = [
@@ -13,7 +13,8 @@ function App() {
   return (
     <div>
       {/* <Waterfall imgUrl={testImgUrl} imgwidth="100" columnCount="2" gapX="10" gapY="5px"/> */}
-      <Waterfall/>
+      <Waterfall type={0}/>
+      {/* <Test></Test> */}
     </div>
   );
 }
