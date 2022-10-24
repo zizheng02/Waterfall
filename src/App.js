@@ -1,5 +1,5 @@
+
 import { Waterfall } from './components/Waterfall/index.jsx';
-import {Test} from './components/Test/index.jsx';
 
 function App() {
   const testImgUrl = [
@@ -11,10 +11,8 @@ function App() {
     'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
   ];
   return (
-    <div>
-      {/* <Waterfall imgUrl={testImgUrl} imgwidth="100" columnCount="2" gapX="10" gapY="5px"/> */}
-      <Waterfall type={0}/>
-      {/* <Test></Test> */}
+    <div style={{margin:"50px auto",border:"1px solid grey"}}>
+      <Waterfall column={3} imgWidth={150} gapX={10} gapY={10} type={0}/>
     </div>
   );
 }

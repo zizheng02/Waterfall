@@ -2,7 +2,8 @@ import React,{useState, useEffect, useReducer} from 'react';
 
 const Waterfall =(props)=>{
     // 默认值
-    const {column = 4,type} = props
+    const {column = 4,imgWidth,gapX,gapY,type} = props
+    // console.log(props)
     // 记录单选的元素坐标   
     const [singleIndex,setSingleIndex]=useState([-1,-1])
      // 测试数据
@@ -116,6 +117,7 @@ const Waterfall =(props)=>{
                 }
             },
             {
+                // 用来控制触底多少，开始回调
             rootMargin:"0px 0px 30px 0px"
             }
         )
@@ -124,7 +126,7 @@ const Waterfall =(props)=>{
     const onImgClick=(event)=>{
         const nodeId = event.target.parentNode.id
         let idArr = nodeId.split(',')
-        console.log(idArr,allColumnType[idArr[0]][idArr[1]],singleIndex,type)
+        // console.log(idArr,allColumnType[idArr[0]][idArr[1]],singleIndex,type)s
         // 不触发响应,用深层拷贝
         let curTypeArr = JSON.parse(JSON.stringify(allColumnType))
         if(type === 1){
@@ -133,23 +135,29 @@ const Waterfall =(props)=>{
                 console.log(curTypeArr[singleIndex[0]][singleIndex[1]])
             }
             setSingleIndex(idArr)
-            console.log(singleIndex)
+            // console.log(singleIndex)
         }
         curTypeArr[idArr[0]][idArr[1]] = 1 - curTypeArr[idArr[0]][idArr[1]];
         setAllColumnType(curTypeArr);
        
     }
+    let marginStyle = {
+        marginBottom:gapY,
+        marginLeft: gapX/2,
+        marginRight: gapX/2
+    }
+    // console.log(marginStyle)
     return (
         <div>
             {/* 瀑布流容器的宽度直接改下面一行的 height 即可，未设置在 props 中 */}
             <div className={'flex-row'} style={{overflowY:"scroll",height:"300px"}}>
                 {
                     allColumnData.map((item, index1) => (
-                        <div className={'flex-column'} key={index1} style={{display:"inline-block",margin:"10px 5px",verticalAlign:"top"}}>
+                        <div className={'flex-column'} key={index1} style={{display:"inline-block",verticalAlign:"top"}}>
                             {
                                 item.map((curItem,index2) => (
-                                    <div className={'flex-column-ele'} id={[index1,index2]} key={index2} style={{width:"100px"}} onClick={onImgClick}>
-                                        <WaterfallItem url={curItem} width="100px" checked={allColumnType[index1][index2]}/>
+                                    <div className={'flex-column-ele'} id={[index1,index2]} key={index2}  onClick={onImgClick} style={marginStyle}>
+                                        <WaterfallItem url={curItem} width={imgWidth} checked={allColumnType[index1][index2]}/>
                                     </div>
                                 ))
                             }
