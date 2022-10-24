@@ -72,13 +72,13 @@ const Waterfall =(props)=>{
     }, [hasGet])
     const addPicture = () => {
         if (dataIndex >= dataList.length) {
-            // console.log('图片已加载完成一次')
-            // console.log(allColumnData,dataIndex,dataList)
-            // setDataRefresh(true);
-            // let data = getData();
-            // let newDataList = [...dataList,...data]
-            // setDataList(newDataList);
-            return
+            console.log('图片已加载完成一次')
+            console.log(allColumnData,dataIndex,dataList)
+            setDataRefresh(true);
+            let data = getData();
+            let newDataList = [...dataList,...data]
+            setDataList(newDataList);
+            // return
         }
         let columnArray = document.querySelectorAll('.flex-column');
         let eleHeight = [];
