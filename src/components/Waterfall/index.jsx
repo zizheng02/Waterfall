@@ -1,13 +1,8 @@
 import React,{useState, useEffect, useReducer} from 'react';
 
 const Waterfall =(props)=>{
-    // 默认值
-    const {column = 4,imgWidth,gapX,gapY,type} = props
-    // console.log(props)
-    // 记录单选的元素坐标   
-    const [singleIndex,setSingleIndex]=useState([-1,-1])
-     // 测试数据
-    let testImgUrl = [
+     // 测试数据,应该做成一个API
+     let testImgUrl = [
         'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
         'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
         'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
@@ -24,7 +19,9 @@ const Waterfall =(props)=>{
         'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
         'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
       ];
-    const columnCount = column;
+
+    const {column = 4,imgWidth,gapX,gapY,type} = props
+    // 生成二维数组
     let arr = [];
     let typeArr=[];
     for(let i=0;i<column;i++){
@@ -34,14 +31,18 @@ const Waterfall =(props)=>{
     const [dataList, setDataList] = useState([]);
     // allColumn里的数据添加到页面上了没
     const [hasGet, setHasGet] = useState(false);
+    // 记录单选被选中的元素
+    const [singleIndex,setSingleIndex]=useState([-1,-1])
+    // 记录多选被选中的元素
+    const [allColumnType,setAllColumnType] = useState(typeArr)
     const [dataRefresh,setDataRefresh] = useState(false);
     const [allColumnData, setAllColumnData] = useState(arr);
-    const [allColumnType,setAllColumnType] = useState(typeArr)
     // 为了强制更新
     const [_,forceUpdate] = useReducer( x=> x+1,0);
-    const [dataIndex, setDataIndex] = useState(columnCount);
+    const [dataIndex, setDataIndex] = useState(column);
     // 获取数据
     const getData =() =>{
+        // 这里向后端请求数据
         return testImgUrl
     }
     // 挂载和第一次渲染
@@ -53,13 +54,13 @@ const Waterfall =(props)=>{
     useEffect(()=>{
         if(dataList.length>0 && dataRefresh === false){
             initFirstRow();
-            console.log("init")
+            // console.log("init")
         }
     },[dataList]);
     const initFirstRow = () => {
         let curData = allColumnData;
         let curTypeArr = allColumnType;
-        for (let i = 0; i < dataList.length && i < columnCount; i++) {
+        for (let i = 0; i < dataList.length && i < column; i++) {
             curData[i].push(dataList[i]);
             curTypeArr[i].push(0);
         }
@@ -67,10 +68,10 @@ const Waterfall =(props)=>{
         setAllColumnType(curTypeArr)
         // 此处需要执行强制刷新
         forceUpdate()
+        // 新加入list的数据还没放到页面上
         setHasGet(prevState => !prevState)
     }
     useEffect(() => {
-        // 跳过页面初始化
         if (dataList.length > 0) {
             addPicture()
         }
@@ -82,7 +83,6 @@ const Waterfall =(props)=>{
             let data = getData();
             let newDataList = [...dataList,...data]
             setDataList(newDataList);
-            // return
         }
         let columnArray = document.querySelectorAll('.flex-column');
         let eleHeight = [];
@@ -117,7 +117,7 @@ const Waterfall =(props)=>{
                 }
             },
             {
-                // 用来控制触底多少，开始回调
+                // 用来控制触底多少时才开始回调
             rootMargin:"0px 0px 30px 0px"
             }
         )
@@ -126,7 +126,6 @@ const Waterfall =(props)=>{
     const onImgClick=(event)=>{
         const nodeId = event.target.parentNode.id
         let idArr = nodeId.split(',')
-        // console.log(idArr,allColumnType[idArr[0]][idArr[1]],singleIndex,type)s
         // 不触发响应,用深层拷贝
         let curTypeArr = JSON.parse(JSON.stringify(allColumnType))
         if(type === 1){
@@ -135,7 +134,6 @@ const Waterfall =(props)=>{
                 console.log(curTypeArr[singleIndex[0]][singleIndex[1]])
             }
             setSingleIndex(idArr)
-            // console.log(singleIndex)
         }
         curTypeArr[idArr[0]][idArr[1]] = 1 - curTypeArr[idArr[0]][idArr[1]];
         setAllColumnType(curTypeArr);
@@ -146,7 +144,6 @@ const Waterfall =(props)=>{
         marginLeft: gapX/2,
         marginRight: gapX/2
     }
-    // console.log(marginStyle)
     return (
         <div>
             {/* 瀑布流容器的宽度直接改下面一行的 height 即可，未设置在 props 中 */}
@@ -173,7 +170,7 @@ const Waterfall =(props)=>{
 const WaterfallItem = (props)=>{
     const {url, width,checked} = props;
     // console.log(props)
-    let opacity = checked ? "0.4" : "0.8";
+    let opacity = checked ? "1" : "0.6";
     const itemStyle={
         width:width,
         opacity
