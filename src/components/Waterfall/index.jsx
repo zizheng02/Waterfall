@@ -1,77 +1,54 @@
 import React, { useState, useEffect, useReducer } from 'react';
 
-const testImgUrl = [
-  'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
-  'https://s3.bmp.ovh/imgs/2022/09/28/bb5a169871df9452.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/79d9dd5daf0baf6e.png',
-  'https://s3.bmp.ovh/imgs/2022/09/28/7ac17aaedface0ad.jpg',
-];
 
-// export interface IWaterfallTestProps {
-//   imgUrl?: string[]; // 图片url数组
-//   imgWidth?: number; // 图片宽度
-//   height?: number; // 瀑布流容器可视区域高度
-//   column?: number; // 列数
-//   gapX?: number; // 行间距（同列图片上下间距）
-//   gapY?: number; //列间距
-//   type?: 'single' | 'multiple'; // 类型（单选/多选，单选至多选择1个，多选相当于不限制）
-//   // onImgClick?: (imgIndex: number, imgUrl: string) => void; // 图片的点击事件回调
-//   onReachBottom?: (currentPage) => void; // 滚动至容器底部的回调
-// }
+export const Waterfall = (props) => {
+  const {imgUrl, imgWidth, column, gapX, gapY, type} = props
 
-export const Waterfall = ({
-  imgUrl = testImgUrl,
-  imgWidth = 114,
-  height,
-  column = 2,
-  gapX = 12,
-  gapY = 12,
-  type = 'multiple',
-  // onImgClick,
-//   onReachBottom,
-}) => {
+  // 初始化
   const arr = [];
   const typeArr = [];
-  for (let i = 0; i < column; i++) {
-    arr.push([]);
-    typeArr.push([]);
+  for(let i = 0;i<column;i++){
+    arr.push([])
+    typeArr.push([])
   }
+  const [curColumn,setCurColumn]= useState(column)
   const [singleCheckedID, setSingleCheckedID] = useState('')
   const [dataList, setDataList] = useState([]);
-  // allColumn里的数据添加到页面上了没
+  // 并不表示什么，交替触发
   const [isMount, setIsMount] = useState(false);
   const [isDataFetch, setIsDataFetch] = useState(false);
   const [allColumnData, setAllColumnData] = useState(arr);
   // 0: 未选中  1: 选中
   const [allColumnType, setAllColumnType] = useState(typeArr);
   const [dataIndex, setDataIndex] = useState(column);
-  // 为了强制更新
+  // 为了强制更新（不是很懂？）
   const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const getData = () => {
     // 向后端请求数据
-    return testImgUrl;
+    return imgUrl;
   };
-  // 挂载和第一次渲染
+  useEffect(()=>{
+    console.log(column);
+    if(column !== curColumn){
+      console.log('column change');
+    }
+  },[column])
+  // 挂载和第一次渲染，React18会在第一次加载时执行两遍
   useEffect(() => {
     const data = getData();
     setDataList(data);
+    // console.log('init')
   }, []);
-  // 数据变化时重新渲染
+  // 第一次放入数据后做些处理
   useEffect(() => {
-    // 仅第一次初始化
-    if (dataList.length > 0 && isDataFetch === false) {
+    if (dataList.length > 0 && dataIndex === column) {
       initFirstRow();
+      // 这里在初始化的时候只会触发一次
+      // console.log('initRow')
+    }
+    console.log('data change')
+    if(dataIndex + 1 < dataList.length && dataIndex !== column){
+      addPicture();
     }
   }, [dataList]);
   const initFirstRow = () => {
@@ -88,18 +65,23 @@ export const Waterfall = ({
     setIsMount(prevState => !prevState);
   };
   useEffect(() => {
-    // 初始化时跳过
-    if (dataList.length > 0) {
+    // console.log('init add ',dataList.length);
+    // 初始化时跳过,跳过了两次
+    if (dataList.length > 0 ) {
       addPicture();
+      // console.log(isMount)
     }
   }, [isMount]);
   const addPicture = () => {
     if (dataIndex >= dataList.length) {
       console.log('图片已加载完成一次');
-      setIsDataFetch(true);
-      const data = getData();
-      const newDataList = [...dataList, ...data];
-      setDataList(newDataList);
+      const newdata = getData();
+      const newDataList = [...dataList, ...newdata]
+      // console.log(newDataList)
+      setDataList( (dataList)=>[...dataList, ...newdata]);
+      // 这里没有更新
+      // console.log('length: ',dataList.length);
+      return;
     }
     const columnArray = document.querySelectorAll('.waterfall_column');
     const eleHeight = [];
@@ -116,6 +98,7 @@ export const Waterfall = ({
     curData[index].push(dataList[dataIndex]);
     const curTypeArr = allColumnType;
     curTypeArr[index].push(0);
+    // console.log('change dataindex: ',dataList.length,dataIndex)
     setDataIndex(n => n + 1);
     setAllColumnData(curData);
     setAllColumnType(curTypeArr);
@@ -129,28 +112,32 @@ export const Waterfall = ({
       (entries) => {
         for (const entry of entries) {
           const { target, isIntersecting } = entry;
+          // console.log(entry);
           if (isIntersecting) {
             observerObj.unobserve(target);
             setIsMount((prevState) => !prevState);
+            // console.log('add: ',dataIndex);
           }
         }
       },
-      {
-        // 用来控制触底多少，开始回调
-        rootMargin: '0px 0px 20px 0px',
-      }
+      // {
+      //   // 用来控制触底多少，开始回调
+      //   rootMargin: '0px 0px 20px 0px',
+      // }
     );
     observerObj.observe(columnArray[columnArray.length - 1]);
   };
   const onImgClick = (event) => {
+    // console.log(event.target)
     const targetId = event.target.parentNode.id;
     const idArr = targetId.split('_');
     // 不触发响应,用深层拷贝
     const curTypeArr = JSON.parse(JSON.stringify(allColumnType));
     if (type === 'single') {
-      if (singleCheckedID === targetId) {
+      if (singleCheckedID !== targetId) {
         // 取消上次单选的元素
         const preIdArr = targetId.split('_')
+        console.log("1",preIdArr)
         curTypeArr[preIdArr[0]][preIdArr[1]] = 1 - curTypeArr[preIdArr[0]][preIdArr[1]];
       }
       setSingleCheckedID(targetId);
@@ -158,19 +145,9 @@ export const Waterfall = ({
     curTypeArr[idArr[0]][idArr[1]] = 1 - curTypeArr[idArr[0]][idArr[1]];
     setAllColumnType(curTypeArr);
   };
-  const marginStyle1={
-    marginTop: gapY
-  }
-  const marginStyle2={
-    marginRight: gapX
-  }
-  const marginStyle3={
-    marginTop: gapY,
-    marginRight: gapX
-  }
   return (
     <div>
-      {/* 瀑布流容器的宽度直接改下面一行的 height 即可，未设置在 props 中 */}
+      {/* 瀑布流容器的宽度直接改下面一行的 height 即可，暂时未设置在 props 中 */}
       <div className={'waterfall_container'} style={{ overflowY: 'scroll', height: '300px' }}>
         {allColumnData.map((columnItem, index1) => (
           <div className={'waterfall_column'} key={index1} style={{ display: 'inline-block', verticalAlign: 'top' }}>
@@ -180,9 +157,9 @@ export const Waterfall = ({
                 id={index1 + "_" + index2}
                 key={index2}
                 onClick={onImgClick}
-                style={{marginRight: (index1 === (column - 1)) ? 0 : gapX, marginTop: (index2 === 0) ? 0 : gapX}}
+                style={{marginRight: (index1 === (column - 1)) ? 0 : gapX, marginTop: (index2 === 0) ? 0 : gapY}}
               >
-                <WaterfallItem url={curItem} width={imgWidth} checked={allColumnType[index1][index2]} />
+                <WaterfallItem url={curItem} width={imgWidth} checked={allColumnType[index1][index2]} index={dataIndex} dataList={dataList} />
               </div>
             ))}
           </div>
@@ -193,12 +170,20 @@ export const Waterfall = ({
 };
 
 const WaterfallItem = (props) => {
-  const { url, width, checked } = props;
+  const { url, width, checked, index, dataList } = props;
   const opacity = checked ? '0.4' : '0.8';
+  if(!url){
+    // 应该是每个新获取的数据的第一个读取不到
+    // 既然每个都要传下来url，不如直接将所有url设为全局数据context
+    // 或许url为空，直接根据下标去找？
+    // console.log('url fail:',index,dataList.length)
+    // return;
+  }
+  
   const itemStyle = {
     width: width,
     display:"block",
     opacity,
   };
-  return <img src={url} style={itemStyle}></img>;
+  return <img src={url} style={itemStyle} alt="loading fail" id={index} />;
 };
