@@ -16,7 +16,6 @@ export const Waterfall = (props) => {
   const [dataList, setDataList] = useState([]);
   // 并不表示什么，交替触发
   const [isMount, setIsMount] = useState(false);
-  const [isDataFetch, setIsDataFetch] = useState(false);
   const [allColumnData, setAllColumnData] = useState(arr);
   // 0: 未选中  1: 选中
   const [allColumnType, setAllColumnType] = useState(typeArr);
@@ -31,6 +30,11 @@ export const Waterfall = (props) => {
     console.log(column);
     if(column !== curColumn){
       console.log('column change');
+      setDataList([]);
+      setAllColumnData(arr)
+      setAllColumnType(typeArr)
+      setDataIndex(column)
+      setSingleCheckedID('')
     }
   },[column])
   // 挂载和第一次渲染，React18会在第一次加载时执行两遍
@@ -38,7 +42,7 @@ export const Waterfall = (props) => {
     const data = getData();
     setDataList(data);
     // console.log('init')
-  }, []);
+  }, [column]);
   // 第一次放入数据后做些处理
   useEffect(() => {
     if (dataList.length > 0 && dataIndex === column) {
