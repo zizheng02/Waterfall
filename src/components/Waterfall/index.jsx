@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useReducer } from 'react';
-
+import { Image } from '@arco-design/web-react';
+import "./index.css"; 
 
 export const Waterfall = (props) => {
   const {imgUrl, imgWidth, column, gapX, gapY, type} = props
@@ -23,7 +24,11 @@ export const Waterfall = (props) => {
   // 为了强制更新（不是很懂？）
   const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const getData = () => {
-    // 向后端请求数据
+    // 
+    // 
+    // Todo: 这里向后端请求数据！
+    // 
+    // 
     return imgUrl;
   };
   useEffect(()=>{
@@ -33,6 +38,7 @@ export const Waterfall = (props) => {
       setDataList([]);
       setAllColumnData(arr)
       setAllColumnType(typeArr)
+      setCurColumn(column)
       setDataIndex(column)
       setSingleCheckedID('')
     }
@@ -124,34 +130,32 @@ export const Waterfall = (props) => {
           }
         }
       },
-      // {
-      //   // 用来控制触底多少，开始回调
-      //   rootMargin: '0px 0px 20px 0px',
-      // }
     );
     observerObj.observe(columnArray[columnArray.length - 1]);
   };
-  const onImgClick = (event) => {
-    // console.log(event.target)
-    const targetId = event.target.parentNode.id;
-    const idArr = targetId.split('_');
-    // 不触发响应,用深层拷贝
-    const curTypeArr = JSON.parse(JSON.stringify(allColumnType));
-    if (type === 'single') {
-      if (singleCheckedID !== targetId) {
-        // 取消上次单选的元素
-        const preIdArr = targetId.split('_')
-        console.log("1",preIdArr)
-        curTypeArr[preIdArr[0]][preIdArr[1]] = 1 - curTypeArr[preIdArr[0]][preIdArr[1]];
-      }
-      setSingleCheckedID(targetId);
-    }
-    curTypeArr[idArr[0]][idArr[1]] = 1 - curTypeArr[idArr[0]][idArr[1]];
-    setAllColumnType(curTypeArr);
-  };
+
+  // 
+  // 图片的点击事件
+  // 
+  // const onImgClick = (event) => {
+  //   const targetId = event.target.parentNode.id;
+  //   const idArr = targetId.split('_');
+  //   // 不触发响应,用深层拷贝
+  //   const curTypeArr = JSON.parse(JSON.stringify(allColumnType));
+  //   if (type === 'single') {
+  //     if (singleCheckedID!=='' && singleCheckedID !== targetId) {
+  //       // 取消上次单选的元素
+  //       const preIdArr = singleCheckedID.split('_')
+  //       curTypeArr[preIdArr[0]][preIdArr[1]] = 1 - curTypeArr[preIdArr[0]][preIdArr[1]];
+  //     }
+  //     setSingleCheckedID(targetId);
+  //   }
+  //   curTypeArr[idArr[0]][idArr[1]] = 1 - curTypeArr[idArr[0]][idArr[1]];
+  //   setAllColumnType(curTypeArr);
+  // };
   return (
     <div>
-      {/* 瀑布流容器的宽度直接改下面一行的 height 即可，暂时未设置在 props 中 */}
+      {/* 瀑布流容器的宽度直接改下面一行的 height 即可，可设置为 API  */}
       <div className={'waterfall_container'} style={{ overflowY: 'scroll', height: '300px' }}>
         {allColumnData.map((columnItem, index1) => (
           <div className={'waterfall_column'} key={index1} style={{ display: 'inline-block', verticalAlign: 'top' }}>
@@ -160,10 +164,10 @@ export const Waterfall = (props) => {
                 className={'waterfall_column_ele'}
                 id={index1 + "_" + index2}
                 key={index2}
-                onClick={onImgClick}
+                // onClick={onImgClick}
                 style={{marginRight: (index1 === (column - 1)) ? 0 : gapX, marginTop: (index2 === 0) ? 0 : gapY}}
               >
-                <WaterfallItem url={curItem} width={imgWidth} checked={allColumnType[index1][index2]} index={dataIndex} dataList={dataList} />
+                <WaterfallItem url={curItem} width={imgWidth} checked={allColumnType[index1][index2]}/>
               </div>
             ))}
           </div>
@@ -174,20 +178,29 @@ export const Waterfall = (props) => {
 };
 
 const WaterfallItem = (props) => {
-  const { url, width, checked, index, dataList } = props;
-  const opacity = checked ? '0.4' : '0.8';
-  if(!url){
-    // 应该是每个新获取的数据的第一个读取不到
-    // 既然每个都要传下来url，不如直接将所有url设为全局数据context
-    // 或许url为空，直接根据下标去找？
-    // console.log('url fail:',index,dataList.length)
-    // return;
-  }
-  
+  const { url, width, checked} = props;
+  const opacity = checked ? '0.5' : '1';
+
   const itemStyle = {
     width: width,
     display:"block",
+    maxWidth: "100%",
+    maxHeight:"100%",
     opacity,
   };
-  return <img src={url} style={itemStyle} alt="loading fail" id={index} />;
+  // return <img src={url} style={itemStyle} alt="loading fail"/>;
+
+  // 
+  // Arco Design Image Component
+  // 它的style接口应该只支持字符串（一个表达inline CSS的字符串）
+  // 
+  return(
+    <Image
+    className="imgItem"
+    src={url}
+    style={itemStyle}
+    alt="loading failed!"
+    preview={false}
+    />
+  )
 };
